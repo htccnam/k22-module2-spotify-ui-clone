@@ -1,0 +1,319 @@
+/* src/index.css */
+:root {
+  --bg-base: #000;
+  --bg-elevated: #121212;
+  --bg-highlight: #1f1f1f;
+  --text: #fff;
+  --text-sub: #b3b3b3;
+  --accent: #1ed760;
+  --btn-white: #fff;
+  --border: #2a2a2a;
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  background: var(--bg-base);
+  color: var(--text);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+input {
+  font: inherit;
+}
+
+/* ===== Layout ===== */
+.app-shell {
+  display: flex;
+  height: 100vh;
+}
+.sidebar {
+  width: 290px;
+  flex-shrink: 0;
+  background: var(--bg-base);
+}
+.main-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-elevated);
+}
+.main-view {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* ===== Header ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  gap: 16px;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+.logo {
+  color: var(--text);
+  display: flex;
+}
+.round-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #0f0f0f;
+  display: grid;
+  place-items: center;
+  color: var(--text);
+}
+.round-btn:hover {
+  background: #242424;
+}
+
+/* ===== Nút login/signup ===== */
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.btn {
+  border-radius: 999px;
+  padding: 10px 28px;
+  font-weight: 700;
+}
+.btn-text {
+  color: var(--text-sub);
+}
+.btn-text:hover {
+  color: var(--text);
+}
+.btn-white {
+  background: var(--btn-white);
+  color: #000;
+}
+.btn-white:hover {
+  transform: scale(1.03);
+}
+
+/* ===== User menu khi đã đăng nhập ===== */
+.user-menu {
+  position: relative;
+}
+.user-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1f1f1f;
+  border-radius: 999px;
+  padding: 4px 10px 4px 4px;
+}
+.user-btn:hover {
+  background: #2a2a2a;
+}
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+.avatar,
+.avatar-fallback {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.avatar-fallback {
+  background: var(--accent);
+  color: #000;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: #282828;
+  border-radius: var(--radius);
+  padding: 6px;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+.dropdown-item:hover {
+  background: #3e3e3e;
+  color: var(--text);
+}
+
+/* ===== AuthModal ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+}
+.modal {
+  background: #181818;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 12px;
+  padding: 28px;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  color: var(--text-sub);
+}
+.modal-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.modal-tab {
+  padding: 8px 16px;
+  border-radius: 999px;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+.modal-tab.active {
+  background: #fff;
+  color: #000;
+}
+.field {
+  margin-bottom: 14px;
+}
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.field input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #121212;
+  color: var(--text);
+  outline: none;
+}
+.field input:focus {
+  border-color: var(--text);
+}
+.field-error {
+  color: #f15e6c;
+  font-size: 12px;
+  margin-top: 4px;
+}
+.btn-primary {
+  width: 100%;
+  background: var(--accent);
+  color: #000;
+  font-weight: 700;
+  padding: 12px;
+  border-radius: 999px;
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.modal-footer {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+.modal-footer button {
+  color: var(--text);
+  font-weight: 700;
+}
+/* ===== Responsive ===== */
+/* Tablet (<= 1024px) */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 240px;
+  }
+  .main-view {
+    padding: 16px;
+  }
+}
+
+/* Mobile (<= 768px) */
+@media (max-width: 768px) {
+  .app-shell {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .header {
+    padding: 10px 16px;
+  }
+  .header-left {
+    gap: 8px;
+  }
+  .btn {
+    padding: 8px 20px;
+    font-size: 14px;
+  }
+  .user-name {
+    display: none; /* Ẩn tên trên mobile */
+  }
+  .main-view {
+    padding: 12px;
+  }
+}
+
+/* Small mobile (<= 480px) */
+@media (max-width: 480px) {
+  .logo svg {
+    width: 24px;
+    height: 24px;
+  }
+  .round-btn {
+    width: 36px;
+    height: 36px;
+  }
+  .modal {
+    margin: 16px;
+    padding: 20px;
+  }
+  .btn {
+    padding: 8px 16px;
+  }
+}
