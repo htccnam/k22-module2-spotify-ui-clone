@@ -5,6 +5,7 @@ import { Home, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useUI } from "../context/UIContext";
 import { normalizeUrl } from "../config";
+import SearchBox from "./SearchBox";
 // import { getInitials } from "../utils/format";
 
 export default function Header() {
@@ -34,6 +35,7 @@ export default function Header() {
         <Link to="/" className="round-btn" title="Trang chủ">
           <Home size={22} />
         </Link>
+        <SearchBox />
       </div>
 
       <div className="header-right">

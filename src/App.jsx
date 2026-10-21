@@ -6,6 +6,7 @@ import { UIProvider } from "./context/UIContext";
 import Layout from "./components/Layout";
 import AuthModal from "./components/AuthModal";
 import Home from "./pages/Home";
+import AppRoutes from "./routes";
 
 export default function App() {
   return (
