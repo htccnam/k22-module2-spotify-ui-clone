@@ -403,3 +403,162 @@ input {
   text-transform: uppercase;
   color: var(--text-sub);
 }
+/* Sidebar */
+.sidebar {
+  width: 290px;
+  flex-shrink: 0;
+  background: var(--bg-base);
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 12px;
+}
+.lib-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.lib-title {
+  font-weight: 700;
+}
+.lib-actions {
+  display: flex;
+  gap: 6px;
+}
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text-sub);
+}
+.icon-btn:hover {
+  color: var(--text);
+  background: #1f1f1f;
+}
+.icon-btn.active {
+  color: var(--text);
+  background: #2a2a2a;
+}
+.lib-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #1f1f1f;
+  font-size: 12px;
+  color: #b3b3b3;
+}
+.chip.active {
+  background: #fff;
+  color: #000;
+}
+.lib-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lib-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 6px;
+  text-align: left;
+}
+.lib-item:hover {
+  background: #1f1f1f;
+}
+.lib-item img,
+.lib-item .avatar-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.lib-item-text {
+  min-width: 0;
+}
+/* View Grid */
+.view-grid,
+.view-grid-dense {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+.view-grid .lib-item,
+.view-grid-dense .lib-item {
+  flex-direction: column;
+  padding: 12px;
+  text-align: left;
+  align-items: flex-start;
+}
+.view-grid .lib-item img,
+.view-grid .lib-item .avatar-fallback {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1/1;
+  border-radius: 8px;
+}
+.view-grid-dense {
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+}
+.view-grid-dense .lib-item,
+.view-grid-dense .lib-item img,
+.view-grid-dense .lib-item .avatar-fallback {
+  width: 100%;
+}
+.view-grid-dense .result-sub {
+  display: none;
+}
+.lib-empty {
+  color: var(--text-sub);
+  font-size: 13px;
+  padding: 12px;
+}
+.lib-sort {
+  padding: 0 4px;
+}
+.lib-sort select {
+  background: #1f1f1f;
+  color: var(--text);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  outline: none;
+}
+
+/* ===== Context menu (chuột phải) ===== */
+.ctx-menu {
+  position: fixed;
+  background: #282828;
+  border-radius: 8px;
+  padding: 6px;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 300;
+}
+.ctx-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.ctx-item:hover {
+  background: #3e3e3e;
+}
+.ctx-item.danger {
+  color: #f15e6c;
+}

@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useUI } from "../context/UIContext";
 import { normalizeUrl } from "../config";
 import SearchBox from "./SearchBox";
-// import { getInitials } from "../utils/format";
+import { getInitials } from "../utils/format";
 
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -42,7 +42,17 @@ export default function Header() {
         {isAuthenticated ? (
           <div className="user-menu" ref={menuRef}>
             <button className="user-btn" onClick={() => setMenuOpen((v) => !v)}>
-              {/* ảnh hoặc fallback chữ cái đầu */}
+              {user.avatar_url ? (
+                <img
+                  className="avatar"
+                  src={normalizeUrl(user.avatar_url)}
+                  alt=""
+                />
+              ) : (
+                <span className="avatar-fallback">
+                  {getInitials(user.display_name || user.username)}
+                </span>
+              )}
               <span className="user-name">
                 {user.display_name || user.username}
               </span>
