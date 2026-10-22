@@ -2,9 +2,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Play, Heart, Trash2, Edit3, Globe, Lock, Loader2 } from "lucide-react";
+import { Play, Pause, Heart, Trash2, Edit3, Globe, Lock, Loader2 } from "lucide-react";
 import { detailsApi } from "../api/details";
 import { useAuth } from "../context/AuthContext";
+import { usePlayer } from "../context/PlayerContext";
 import { formatTotalDuration } from "../utils/format";
 import DetailHeader from "../components/DetailHeader";
 import TrackTable from "../components/TrackTable";
@@ -22,6 +23,20 @@ export default function PlaylistDetail() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const player = usePlayer();
+
+  const isPlayingThis =
+    player.isPlaying &&
+    tracks.some((t) => t.id === player.currentTrack?.id);
+
+  const handlePlayAll = () => {
+    if (tracks.length === 0) return;
+    if (isPlayingThis) {
+      player.togglePlay();
+    } else {
+      player.playTrack(tracks[0], tracks);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -166,10 +181,15 @@ export default function PlaylistDetail() {
       <div className="detail-action-bar">
         <button
           className="btn-play-large"
-          aria-label="Phát playlist"
-          title="Phát playlist"
+          aria-label={isPlayingThis ? "Tạm dừng" : "Phát playlist"}
+          title={isPlayingThis ? "Tạm dừng" : "Phát playlist"}
+          onClick={handlePlayAll}
         >
-          <Play size={24} fill="currentColor" />
+          {isPlayingThis ? (
+            <Pause size={24} fill="currentColor" />
+          ) : (
+            <Play size={24} fill="currentColor" />
+          )}
         </button>
 
         {/* Nút Follow / Save nếu không phải chủ sở hữu */}

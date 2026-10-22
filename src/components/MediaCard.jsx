@@ -1,9 +1,10 @@
 // src/components/MediaCard.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import { normalizeUrl } from "../config";
 import { getInitials } from "../utils/format";
+import { usePlayer } from "../context/PlayerContext";
 
 /**
  * MediaCard: Thẻ hiển thị một đối tượng âm nhạc (Nghệ sĩ, Album, Playlist, Bài hát).
@@ -24,7 +25,11 @@ export default function MediaCard({
   onPlay,
 }) {
   const navigate = useNavigate();
+  const player = usePlayer();
   const [imgError, setImgError] = useState(false);
+
+  const isPlayingThis =
+    player.isPlaying && player.currentTrack?.id === id;
 
   const handleClick = () => {
     navigate(`/${type}/${id}`);
@@ -34,8 +39,20 @@ export default function MediaCard({
     e.stopPropagation(); // Không cho nổi bọt lên handleClick của card
     if (onPlay) {
       onPlay({ id, type, title, subtitle, image });
+      return;
+    }
+    if (type === "track") {
+      if (isPlayingThis) {
+        player.togglePlay();
+      } else {
+        player.playTrack({
+          id,
+          title,
+          artist_name: subtitle,
+          image_url: image,
+        });
+      }
     } else {
-      // Tạm thời nếu chưa có player thật thì điều hướng tới trang chi tiết
       navigate(`/${type}/${id}`);
     }
   };
@@ -75,10 +92,14 @@ export default function MediaCard({
         {/* Nút Play xanh đặc trưng của Spotify - bay lên khi hover */}
         <button
           className="media-card-play-btn"
-          aria-label={`Phát ${title}`}
+          aria-label={isPlayingThis ? `Tạm dừng ${title}` : `Phát ${title}`}
           onClick={handlePlayClick}
         >
-          <Play size={22} fill="currentColor" color="currentColor" />
+          {isPlayingThis ? (
+            <Pause size={22} fill="currentColor" color="currentColor" />
+          ) : (
+            <Play size={22} fill="currentColor" color="currentColor" />
+          )}
         </button>
       </div>
 

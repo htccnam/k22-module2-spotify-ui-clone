@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Play, Heart, Loader2 } from "lucide-react";
+import { Play, Pause, Heart, Loader2 } from "lucide-react";
 import { detailsApi } from "../api/details";
+import { usePlayer } from "../context/PlayerContext";
 import { formatTotalDuration, formatYear, formatNumber } from "../utils/format";
 import DetailHeader from "../components/DetailHeader";
 import TrackTable from "../components/TrackTable";
@@ -17,6 +18,20 @@ export default function AlbumDetail() {
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const player = usePlayer();
+
+  const isPlayingThis =
+    player.isPlaying &&
+    tracks.some((t) => t.id === player.currentTrack?.id);
+
+  const handlePlayAll = () => {
+    if (tracks.length === 0) return;
+    if (isPlayingThis) {
+      player.togglePlay();
+    } else {
+      player.playTrack(tracks[0], tracks);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -126,10 +141,15 @@ export default function AlbumDetail() {
       <div className="detail-action-bar">
         <button
           className="btn-play-large"
-          aria-label={`Phát album ${album.title}`}
-          title={`Phát album ${album.title}`}
+          aria-label={isPlayingThis ? "Tạm dừng" : `Phát album ${album.title}`}
+          title={isPlayingThis ? "Tạm dừng" : `Phát album ${album.title}`}
+          onClick={handlePlayAll}
         >
-          <Play size={24} fill="currentColor" />
+          {isPlayingThis ? (
+            <Pause size={24} fill="currentColor" />
+          ) : (
+            <Play size={24} fill="currentColor" />
+          )}
         </button>
 
         <button

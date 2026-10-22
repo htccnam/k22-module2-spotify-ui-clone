@@ -6,6 +6,7 @@ import { Play, Pause, Heart, Clock, MoreHorizontal, Plus, Trash2 } from "lucide-
 import { normalizeUrl } from "../config";
 import { formatDuration } from "../utils/format";
 import { detailsApi } from "../api/details";
+import { usePlayer } from "../context/PlayerContext";
 import AddToPlaylistModal from "./AddToPlaylistModal";
 
 export default function TrackTable({
@@ -18,9 +19,26 @@ export default function TrackTable({
   onRemoveTrack,
 }) {
   const navigate = useNavigate();
+  const player = usePlayer();
+
   const [selectedTrackForAdd, setSelectedTrackForAdd] = useState(null);
   const [activeMenuTrackId, setActiveMenuTrackId] = useState(null);
   const [likedTrackIds, setLikedTrackIds] = useState(new Set());
+
+  const effectivePlayTrack = (track, idx) => {
+    if (onPlayTrack) {
+      onPlayTrack(track, idx);
+      return;
+    }
+    if (player.currentTrack?.id === track.id) {
+      player.togglePlay();
+    } else {
+      player.playTrack(track, tracks);
+    }
+  };
+
+  const effectivePlayingId = currentPlayingId || player.currentTrack?.id;
+  const effectiveIsPlaying = isPlaying || player.isPlaying;
 
   // Khởi tạo danh sách bài hát đã like từ prop tracks
   useEffect(() => {
@@ -83,7 +101,7 @@ export default function TrackTable({
         </thead>
         <tbody>
           {tracks.map((track, idx) => {
-            const isCurrent = currentPlayingId === track.id;
+            const isCurrent = effectivePlayingId === track.id;
             const isLiked = likedTrackIds.has(track.id);
             const coverImg = track.image_url || track.album_cover_image_url;
 
@@ -91,17 +109,17 @@ export default function TrackTable({
               <tr
                 key={track.id}
                 className={`track-row ${isCurrent ? "is-current-playing" : ""}`}
-                onDoubleClick={() => onPlayTrack && onPlayTrack(track, idx)}
+                onDoubleClick={() => effectivePlayTrack(track, idx)}
               >
                 {/* 1. Cột STT / Nút Play */}
                 <td className="col-index">
                   <span className="track-number">{idx + 1}</span>
                   <button
                     className="track-row-play-btn"
-                    onClick={() => onPlayTrack && onPlayTrack(track, idx)}
+                    onClick={() => effectivePlayTrack(track, idx)}
                     aria-label={`Phát ${track.title}`}
                   >
-                    {isCurrent && isPlaying ? (
+                    {isCurrent && effectiveIsPlaying ? (
                       <Pause size={14} fill="currentColor" />
                     ) : (
                       <Play size={14} fill="currentColor" />
@@ -270,4 +288,3 @@ export default function TrackTable({
     </div>
   );
 }
-

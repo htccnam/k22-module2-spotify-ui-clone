@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Play, Heart, Plus, Loader2 } from "lucide-react";
+import { Play, Pause, Heart, Plus, Loader2 } from "lucide-react";
 import { detailsApi } from "../api/details";
+import { usePlayer } from "../context/PlayerContext";
 import { formatDuration, formatNumber, formatYear } from "../utils/format";
 import DetailHeader from "../components/DetailHeader";
 import TrackTable from "../components/TrackTable";
@@ -19,6 +20,19 @@ export default function TrackDetail() {
   const [isLiked, setIsLiked] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const player = usePlayer();
+
+  const isPlayingThis =
+    player.isPlaying && player.currentTrack?.id === track?.id;
+
+  const handlePlayCurrent = () => {
+    if (!track) return;
+    if (isPlayingThis) {
+      player.togglePlay();
+    } else {
+      player.playTrack(track, artistTracks.length > 0 ? [track, ...artistTracks] : [track]);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -129,10 +143,15 @@ export default function TrackDetail() {
       <div className="detail-action-bar">
         <button
           className="btn-play-large"
-          aria-label={`Phát bài hát ${track.title}`}
-          title={`Phát bài hát ${track.title}`}
+          aria-label={isPlayingThis ? "Tạm dừng" : `Phát bài hát ${track.title}`}
+          title={isPlayingThis ? "Tạm dừng" : `Phát bài hát ${track.title}`}
+          onClick={handlePlayCurrent}
         >
-          <Play size={24} fill="currentColor" />
+          {isPlayingThis ? (
+            <Pause size={24} fill="currentColor" />
+          ) : (
+            <Play size={24} fill="currentColor" />
+          )}
         </button>
 
         <button

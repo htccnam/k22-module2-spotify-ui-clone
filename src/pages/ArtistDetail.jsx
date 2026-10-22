@@ -2,12 +2,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Play, Loader2, Check } from "lucide-react";
+import { Play, Pause, Loader2, Check } from "lucide-react";
 import { detailsApi } from "../api/details";
 import { formatNumber } from "../utils/format";
 import DetailHeader from "../components/DetailHeader";
 import TrackTable from "../components/TrackTable";
 import MediaCard from "../components/MediaCard";
+import { usePlayer } from "../context/PlayerContext";
 
 export default function ArtistDetail() {
   const { id } = useParams();
@@ -19,6 +20,20 @@ export default function ArtistDetail() {
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const player = usePlayer();
+
+  const isPlayingThis =
+    player.isPlaying &&
+    popularTracks.some((t) => t.id === player.currentTrack?.id);
+
+  const handlePlayAll = () => {
+    if (popularTracks.length === 0) return;
+    if (isPlayingThis) {
+      player.togglePlay();
+    } else {
+      player.playTrack(popularTracks[0], popularTracks);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -126,10 +141,15 @@ export default function ArtistDetail() {
       <div className="detail-action-bar">
         <button
           className="btn-play-large"
-          aria-label={`Phát nhạc của ${artist.name}`}
-          title={`Phát nhạc của ${artist.name}`}
+          aria-label={isPlayingThis ? "Tạm dừng" : `Phát nhạc của ${artist.name}`}
+          title={isPlayingThis ? "Tạm dừng" : `Phát nhạc của ${artist.name}`}
+          onClick={handlePlayAll}
         >
-          <Play size={24} fill="currentColor" />
+          {isPlayingThis ? (
+            <Pause size={24} fill="currentColor" />
+          ) : (
+            <Play size={24} fill="currentColor" />
+          )}
         </button>
 
         <button
