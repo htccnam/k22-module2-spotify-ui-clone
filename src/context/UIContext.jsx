@@ -12,6 +12,8 @@ const UIContext = createContext(null);
 export function UIProvider({ children }) {
   // authModal = { open: boolean, mode: "login" | "signup" }
   const [authModal, setAuthModal] = useState({ open: false, mode: "login" });
+  // Quản lý trạng thái mở/đóng Sidebar trên Mobile
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const openLogin = useCallback(
     () => setAuthModal({ open: true, mode: "login" }),
@@ -30,6 +32,9 @@ export function UIProvider({ children }) {
     [],
   );
 
+  const toggleSidebar = useCallback(() => setSidebarOpen((v) => !v), []);
+  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+
   const value = useMemo(
     () => ({
       authModal,
@@ -37,8 +42,20 @@ export function UIProvider({ children }) {
       openSignup,
       closeAuthModal,
       switchAuthMode,
+      sidebarOpen,
+      toggleSidebar,
+      closeSidebar,
     }),
-    [authModal, openLogin, openSignup, closeAuthModal, switchAuthMode],
+    [
+      authModal,
+      openLogin,
+      openSignup,
+      closeAuthModal,
+      switchAuthMode,
+      sidebarOpen,
+      toggleSidebar,
+      closeSidebar,
+    ],
   );
 
   return <UIContext.Provider value={value}>{children}</UIContext.Provider>;

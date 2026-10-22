@@ -74,12 +74,37 @@ input {
   justify-content: space-between;
   padding: 12px 20px;
   gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-elevated);
 }
 .header-left {
   display: flex;
   align-items: center;
   gap: 12px;
   flex: 1;
+  min-width: 0;
+}
+.home-btn-wrap {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.mobile-lib-btn {
+  display: none;
+  flex-shrink: 0;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.sidebar-overlay {
+  display: none;
+}
+.mobile-sidebar-close {
+  display: none;
 }
 .logo {
   color: var(--text);
@@ -283,46 +308,153 @@ input {
 @media (max-width: 768px) {
   .app-main-layout {
     flex-direction: column;
+    position: relative;
   }
-  .sidebar {
+  .main-column {
     width: 100%;
-    height: auto;
-    border-bottom: 1px solid var(--border);
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    order: 1;
   }
   .header {
-    padding: 10px 16px;
+    padding: 8px 12px;
+    gap: 8px;
+    background: var(--bg-base);
   }
   .header-left {
     gap: 8px;
+    min-width: 0;
   }
-  .btn {
-    padding: 8px 20px;
-    font-size: 14px;
+  .mobile-lib-btn {
+    display: grid;
+    place-items: center;
   }
-  .user-name {
-    display: none; /* Ẩn tên trên mobile */
+  /* Sidebar Drawer on Mobile */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 150;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .sidebar-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 80px;
+    left: 0;
+    width: min(320px, 86vw);
+    height: auto;
+    z-index: 160;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.3, 0, 0, 1);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.7);
+    border-right: 1px solid var(--border);
+    background: var(--bg-base);
+  }
+  .sidebar.is-open {
+    transform: translateX(0);
+  }
+  .mobile-sidebar-close {
+    display: grid !important;
+    place-items: center;
   }
   .main-view {
-    padding: 12px;
+    padding: 14px 12px;
+  }
+  .auth-buttons {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .auth-buttons .btn {
+    padding: 7px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .auth-buttons .btn-white {
+    padding: 7px 14px;
+  }
+  .user-name {
+    display: none;
   }
 }
-
 /* Small mobile (<= 480px) */
 @media (max-width: 480px) {
-  .logo svg {
-    width: 24px;
-    height: 24px;
+  .home-btn-wrap {
+    display: none;
+  }
+  .header {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .header-left {
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+  }
+  .search-wrap {
+    min-width: 0;
+    flex: 1;
+  }
+  .search-box {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .search-box input {
+    font-size: 13px;
+    width: 100%;
+  }
+  .auth-buttons {
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .auth-buttons .btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .auth-buttons .btn-white {
+    padding: 6px 12px;
   }
   .round-btn {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
+  }
+  .logo svg {
+    width: 26px;
+    height: 26px;
   }
   .modal {
     margin: 16px;
     padding: 20px;
   }
-  .btn {
-    padding: 8px 16px;
+  .media-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+  }
+  .media-card {
+    padding: 10px;
+  }
+  .home-greeting {
+    font-size: 1.4rem;
+  }
+  .section-title {
+    font-size: 1.2rem;
+  }
+  .detail-hero-cover-wrap {
+    width: 140px;
+    height: 140px;
+  }
+  .detail-title {
+    font-size: 1.6rem;
   }
 }
 

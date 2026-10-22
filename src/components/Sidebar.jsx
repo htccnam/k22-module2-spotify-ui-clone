@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { List, LayoutGrid, LayoutList, Rows3, Plus, Search, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useUI } from "../context/UIContext";
 import { libraryApi } from "../api/library";
 import { normalizeUrl } from "../config";
 import ContextMenu from "./ContextMenu";
@@ -26,6 +27,7 @@ const SORTS = [
 
 export default function Sidebar() {
   const { isAuthenticated } = useAuth();
+  const { sidebarOpen, closeSidebar } = useUI();
   const navigate = useNavigate();
 
   const [view, setView] = useState("list"); // chế độ hiển thị
@@ -140,158 +142,177 @@ export default function Sidebar() {
   }, [menu]);
 
   return (
-    <aside className="sidebar">
-      {/* header Library: title + 4 nút view mode + nút + (tạo playlist) */}
-      <div className="lib-header">
-        <span className="lib-title">Thư viện</span>
-        <div className="lib-actions">
-          <Tooltip text="Tạo danh sách phát" position="top">
-            <button
-              className="icon-btn"
-              onClick={() => setShowCreate(true)}
-              aria-label="Tạo playlist"
-            >
-              <Plus size={18} />
-            </button>
-          </Tooltip>
-          {VIEW_MODES.map(({ key, label, icon: Icon }) => (
-            <Tooltip key={key} text={label} position="top">
+    <>
+      {/* Overlay mờ đen khi mở Sidebar Drawer trên mobile */}
+      <div
+        className={`sidebar-overlay ${sidebarOpen ? "is-open" : ""}`}
+        onClick={closeSidebar}
+      />
+
+      <aside className={`sidebar ${sidebarOpen ? "is-open" : ""}`}>
+        {/* header Library: title + 4 nút view mode + nút + (tạo playlist) + nút đóng trên mobile */}
+        <div className="lib-header">
+          <span className="lib-title">Thư viện</span>
+          <div className="lib-actions">
+            <Tooltip text="Tạo danh sách phát" position="top">
               <button
-                className={`icon-btn ${view === key ? "active" : ""}`}
-                onClick={() => setView(key)}
-                aria-label={label}
+                className="icon-btn"
+                onClick={() => setShowCreate(true)}
+                aria-label="Tạo playlist"
               >
-                <Icon size={18} />
+                <Plus size={18} />
               </button>
             </Tooltip>
-          ))}
-        </div>
-      </div>
-
-      {/* filter chips */}
-      <div className="lib-filters">
-        {FILTERS.map((f) => (
-          <button
-            key={f}
-            className={`chip ${filter === f ? "active" : ""}`}
-            onClick={() => setFilter(f)}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
-      {/* 5.2: Controls gồm Search trong thư viện + Sort dropdown */}
-      <div className="lib-controls">
-        {searchOpen ? (
-          <div className="lib-search-input-wrap">
-            <Search size={14} className="lib-search-icon" />
-            <input
-              ref={searchInputRef}
-              type="text"
-              className="lib-search-input"
-              placeholder="Tìm kiếm trong Thư viện"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  if (searchQuery) setSearchQuery("");
-                  else setSearchOpen(false);
-                }
-              }}
-            />
+            {VIEW_MODES.map(({ key, label, icon: Icon }) => (
+              <Tooltip key={key} text={label} position="top">
+                <button
+                  className={`icon-btn ${view === key ? "active" : ""}`}
+                  onClick={() => setView(key)}
+                  aria-label={label}
+                >
+                  <Icon size={18} />
+                </button>
+              </Tooltip>
+            ))}
+            {/* Nút đóng Sidebar trên Mobile */}
             <button
-              className="lib-search-clear"
-              onClick={() => {
-                setSearchQuery("");
-                setSearchOpen(false);
-              }}
-              title="Đóng tìm kiếm"
+              className="icon-btn mobile-sidebar-close"
+              onClick={closeSidebar}
+              aria-label="Đóng thư viện"
             >
-              <X size={14} />
+              <X size={18} />
             </button>
           </div>
-        ) : (
-          <Tooltip text="Tìm kiếm trong Thư viện" position="top">
-            <button
-              className="icon-btn lib-search-toggle"
-              onClick={() => {
-                setSearchOpen(true);
-                setTimeout(() => searchInputRef.current?.focus(), 50);
-              }}
-              aria-label="Tìm kiếm trong Thư viện"
-            >
-              <Search size={16} />
-            </button>
-          </Tooltip>
-        )}
-
-        <div className="lib-sort">
-          <select value={sort} onChange={(e) => setSort(e.target.value)}>
-            {SORTS.map((s) => (
-              <option key={s.key} value={s.key}>
-                {s.label}
-              </option>
-            ))}
-          </select>
         </div>
-      </div>
 
-      {/* danh sách items, hiển thị theo view mode */}
-      <div className={`lib-list view-${view}`}>
-        {loading ? (
-          <p className="lib-empty">Đang tải...</p>
-        ) : visible.length === 0 ? (
-          <p className="lib-empty">
-            {searchQuery ? "Không tìm thấy kết quả phù hợp" : "Thư viện trống"}
-          </p>
-        ) : (
-          visible.map((item) => (
+        {/* filter chips */}
+        <div className="lib-filters">
+          {FILTERS.map((f) => (
             <button
-              key={`${item.type}-${item.id}`}
-              className="lib-item"
-              onClick={() => navigate(`/${item.type}/${item.id}`)}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                setMenu({ x: e.clientX, y: e.clientY, item });
-              }}
+              key={f}
+              className={`chip ${filter === f ? "active" : ""}`}
+              onClick={() => setFilter(f)}
             >
-              {view !== "compact" && item.image ? (
-                <img
-                  src={normalizeUrl(item.image)}
-                  alt={item.title}
-                  className={item.type === "artist" ? "avatar-fallback" : ""}
-                />
-              ) : (
-                <span className="avatar-fallback">{item.title?.[0]}</span>
-              )}
-              <div className="lib-item-text">
-                <p className="result-title">{item.title}</p>
-                {view !== "compact" && (
-                  <p className="result-sub">{item.subtitle}</p>
-                )}
-              </div>
+              {f}
             </button>
-          ))
+          ))}
+        </div>
+
+        {/* 5.2: Controls gồm Search trong thư viện + Sort dropdown */}
+        <div className="lib-controls">
+          {searchOpen ? (
+            <div className="lib-search-input-wrap">
+              <Search size={14} className="lib-search-icon" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="lib-search-input"
+                placeholder="Tìm kiếm trong Thư viện"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    if (searchQuery) setSearchQuery("");
+                    else setSearchOpen(false);
+                  }
+                }}
+              />
+              <button
+                className="lib-search-clear"
+                onClick={() => {
+                  setSearchQuery("");
+                  setSearchOpen(false);
+                }}
+                title="Đóng tìm kiếm"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ) : (
+            <Tooltip text="Tìm kiếm trong Thư viện" position="top">
+              <button
+                className="icon-btn lib-search-toggle"
+                onClick={() => {
+                  setSearchOpen(true);
+                  setTimeout(() => searchInputRef.current?.focus(), 50);
+                }}
+                aria-label="Tìm kiếm trong Thư viện"
+              >
+                <Search size={16} />
+              </button>
+            </Tooltip>
+          )}
+
+          <div className="lib-sort">
+            <select value={sort} onChange={(e) => setSort(e.target.value)}>
+              {SORTS.map((s) => (
+                <option key={s.key} value={s.key}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* danh sách items, hiển thị theo view mode */}
+        <div className={`lib-list view-${view}`}>
+          {loading ? (
+            <p className="lib-empty">Đang tải...</p>
+          ) : visible.length === 0 ? (
+            <p className="lib-empty">
+              {searchQuery ? "Không tìm thấy kết quả phù hợp" : "Thư viện trống"}
+            </p>
+          ) : (
+            visible.map((item) => (
+              <button
+                key={`${item.type}-${item.id}`}
+                className="lib-item"
+                onClick={() => {
+                  closeSidebar();
+                  navigate(`/${item.type}/${item.id}`);
+                }}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  setMenu({ x: e.clientX, y: e.clientY, item });
+                }}
+              >
+                {view !== "compact" && item.image ? (
+                  <img
+                    src={normalizeUrl(item.image)}
+                    alt={item.title}
+                    className={item.type === "artist" ? "avatar-fallback" : ""}
+                  />
+                ) : (
+                  <span className="avatar-fallback">{item.title?.[0]}</span>
+                )}
+                <div className="lib-item-text">
+                  <p className="result-title">{item.title}</p>
+                  {view !== "compact" && (
+                    <p className="result-sub">{item.subtitle}</p>
+                  )}
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+
+        {menu && (
+          <ContextMenu
+            x={menu.x}
+            y={menu.y}
+            item={menu.item}
+            onClose={() => setMenu(null)}
+            onChanged={() => setReloadKey((k) => k + 1)}
+          />
         )}
-      </div>
 
-      {menu && (
-        <ContextMenu
-          x={menu.x}
-          y={menu.y}
-          item={menu.item}
-          onClose={() => setMenu(null)}
-          onChanged={() => setReloadKey((k) => k + 1)}
-        />
-      )}
-
-      {showCreate && (
-        <CreatePlaylistModal
-          onClose={() => setShowCreate(false)}
-          onCreated={() => setReloadKey((k) => k + 1)}
-        />
-      )}
-    </aside>
+        {showCreate && (
+          <CreatePlaylistModal
+            onClose={() => setShowCreate(false)}
+            onCreated={() => setReloadKey((k) => k + 1)}
+          />
+        )}
+      </aside>
+    </>
   );
 }
