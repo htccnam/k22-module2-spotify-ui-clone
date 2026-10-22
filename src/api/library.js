@@ -17,12 +17,12 @@ export const libraryApi = {
     action, // action: "follow" | "unfollow"
   ) =>
     api.request({
-      method: action === "unfollow" ? "DELETE" : "PUT",
+      method: action === "unfollow" ? "DELETE" : "POST",
       url: `/api/playlists/${id}/follow`,
     }),
   followArtist: (id, action) =>
     api.request({
-      method: action === "unfollow" ? "DELETE" : "PUT",
+      method: action === "unfollow" ? "DELETE" : "POST",
       url: `/api/artists/${id}/follow`,
     }),
   likeAlbum: (
@@ -30,7 +30,7 @@ export const libraryApi = {
     action, // action: "unlike" | "like"
   ) =>
     api.request({
-      method: action === "unlike" ? "DELETE" : "PUT",
+      method: action === "unlike" ? "DELETE" : "POST",
       url: `/api/albums/${id}/like`,
     }),
 };
