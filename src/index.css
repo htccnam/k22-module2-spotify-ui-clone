@@ -949,3 +949,136 @@ input {
   }
 }
 
+
+
+/* ===== Tooltip Component (Mục 9) ===== */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tooltip-bubble {
+  position: absolute;
+  background: #282828;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 4px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 1000;
+  white-space: nowrap;
+  animation: tooltipFade 0.15s ease-out forwards;
+}
+
+.tooltip-top {
+  bottom: calc(100% + 8px);
+  left: 50%;
+  --tx: -50%;
+  --ty: 0;
+  transform: translateX(-50%);
+}
+
+.tooltip-bottom {
+  top: calc(100% + 8px);
+  left: 50%;
+  --tx: -50%;
+  --ty: 0;
+  transform: translateX(-50%);
+}
+
+.tooltip-left {
+  right: calc(100% + 8px);
+  top: 50%;
+  --tx: 0;
+  --ty: -50%;
+  transform: translateY(-50%);
+}
+
+.tooltip-right {
+  left: calc(100% + 8px);
+  top: 50%;
+  --tx: 0;
+  --ty: -50%;
+  transform: translateY(-50%);
+}
+
+@keyframes tooltipFade {
+  from {
+    opacity: 0;
+    transform: translate(var(--tx, 0), var(--ty, 0)) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(var(--tx, 0), var(--ty, 0)) scale(1);
+  }
+}
+
+/* ===== Sidebar Controls: Search in Library & Sort (Mục 5.2) ===== */
+.lib-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 4px;
+}
+
+.lib-search-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #242424;
+  border-radius: 4px;
+  padding: 4px 8px;
+  flex: 1;
+  min-width: 0;
+  animation: expandSearch 0.2s ease-out;
+}
+
+@keyframes expandSearch {
+  from {
+    width: 32px;
+    opacity: 0;
+  }
+  to {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+.lib-search-icon {
+  color: var(--text-sub);
+  flex-shrink: 0;
+}
+
+.lib-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.lib-search-input::placeholder {
+  color: #727272;
+}
+
+.lib-search-clear {
+  color: var(--text-sub);
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.lib-search-clear:hover {
+  color: var(--text);
+  background: #333;
+}

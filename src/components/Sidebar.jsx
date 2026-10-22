@@ -1,19 +1,20 @@
 // src/components/Sidebar.jsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { List, LayoutGrid, LayoutList, Rows3, Plus } from "lucide-react";
+import { List, LayoutGrid, LayoutList, Rows3, Plus, Search, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { libraryApi } from "../api/library";
 import { normalizeUrl } from "../config";
 import ContextMenu from "./ContextMenu";
 import CreatePlaylistModal from "./CreatePlaylistModal";
+import Tooltip from "./Tooltip";
 
 // 4 chế độ view (Spotify thật có đúng 4 cái này)
 const VIEW_MODES = [
-  { key: "list", icon: List },
-  { key: "grid", icon: LayoutGrid },
-  { key: "grid-dense", icon: LayoutList },
-  { key: "compact", icon: Rows3 },
+  { key: "list", label: "Danh sách", icon: List },
+  { key: "grid", label: "Lưới", icon: LayoutGrid },
+  { key: "grid-dense", label: "Lưới dày", icon: LayoutList },
+  { key: "compact", label: "Thu gọn", icon: Rows3 },
 ];
 
 const FILTERS = ["all", "playlists", "artists", "albums"];
@@ -35,6 +36,11 @@ export default function Sidebar() {
   const [reloadKey, setReloadKey] = useState(0);
   const [showCreate, setShowCreate] = useState(false);
   const [menu, setMenu] = useState(null); // { x, y, item }
+
+  // 5.2: State tìm kiếm trong Sidebar
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef(null);
 
   // 1. Fetch khi user đã đăng nhập (dùng Promise.allSettled)
   useEffect(() => {
@@ -90,10 +96,20 @@ export default function Sidebar() {
     };
   }, [isAuthenticated, reloadKey]);
 
-  // 2. Lọc + sắp (DẪN XUẤT — không cần state mới, dùng useMemo)
+  // 2. Lọc + Tìm kiếm + Sắp xếp (DẪN XUẤT — không cần state mới, dùng useMemo)
   const visible = useMemo(() => {
     let list = items;
     if (filter !== "all") list = list.filter((i) => i.type === filter);
+
+    // 5.2: Lọc theo từ khóa tìm kiếm trong Sidebar
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(
+        (i) =>
+          i.title?.toLowerCase().includes(q) ||
+          i.subtitle?.toLowerCase().includes(q),
+      );
+    }
 
     if (sort === "alphabetical") {
       list = [...list].sort((a, b) => a.title.localeCompare(b.title));
@@ -106,7 +122,7 @@ export default function Sidebar() {
       list = [...list].sort((a, b) => new Date(b.ts) - new Date(a.ts));
     }
     return list;
-  }, [items, filter, sort]); // ← giờ sort được dùng thật, hết vọc "unnecessary dependency"
+  }, [items, filter, sort, searchQuery]);
 
   // Đóng context menu khi click ra ngoài / cuộn / bấm Esc
   useEffect(() => {
@@ -129,21 +145,25 @@ export default function Sidebar() {
       <div className="lib-header">
         <span className="lib-title">Thư viện</span>
         <div className="lib-actions">
-          <button
-            className="icon-btn"
-            title="Tạo playlist"
-            onClick={() => setShowCreate(true)}
-          >
-            <Plus size={18} />
-          </button>
-          {VIEW_MODES.map(({ key, icon: Icon }) => (
+          <Tooltip text="Tạo danh sách phát" position="top">
             <button
-              key={key}
-              className={`icon-btn ${view === key ? "active" : ""}`}
-              onClick={() => setView(key)}
+              className="icon-btn"
+              onClick={() => setShowCreate(true)}
+              aria-label="Tạo playlist"
             >
-              <Icon size={18} />
+              <Plus size={18} />
             </button>
+          </Tooltip>
+          {VIEW_MODES.map(({ key, label, icon: Icon }) => (
+            <Tooltip key={key} text={label} position="top">
+              <button
+                className={`icon-btn ${view === key ? "active" : ""}`}
+                onClick={() => setView(key)}
+                aria-label={label}
+              >
+                <Icon size={18} />
+              </button>
+            </Tooltip>
           ))}
         </div>
       </div>
@@ -160,14 +180,61 @@ export default function Sidebar() {
           </button>
         ))}
       </div>
-      <div className="lib-sort">
-        <select value={sort} onChange={(e) => setSort(e.target.value)}>
-          {SORTS.map((s) => (
-            <option key={s.key} value={s.key}>
-              {s.label}
-            </option>
-          ))}
-        </select>
+
+      {/* 5.2: Controls gồm Search trong thư viện + Sort dropdown */}
+      <div className="lib-controls">
+        {searchOpen ? (
+          <div className="lib-search-input-wrap">
+            <Search size={14} className="lib-search-icon" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="lib-search-input"
+              placeholder="Tìm kiếm trong Thư viện"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  if (searchQuery) setSearchQuery("");
+                  else setSearchOpen(false);
+                }
+              }}
+            />
+            <button
+              className="lib-search-clear"
+              onClick={() => {
+                setSearchQuery("");
+                setSearchOpen(false);
+              }}
+              title="Đóng tìm kiếm"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ) : (
+          <Tooltip text="Tìm kiếm trong Thư viện" position="top">
+            <button
+              className="icon-btn lib-search-toggle"
+              onClick={() => {
+                setSearchOpen(true);
+                setTimeout(() => searchInputRef.current?.focus(), 50);
+              }}
+              aria-label="Tìm kiếm trong Thư viện"
+            >
+              <Search size={16} />
+            </button>
+          </Tooltip>
+        )}
+
+        <div className="lib-sort">
+          <select value={sort} onChange={(e) => setSort(e.target.value)}>
+            {SORTS.map((s) => (
+              <option key={s.key} value={s.key}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* danh sách items, hiển thị theo view mode */}
@@ -175,7 +242,9 @@ export default function Sidebar() {
         {loading ? (
           <p className="lib-empty">Đang tải...</p>
         ) : visible.length === 0 ? (
-          <p className="lib-empty">Thư viện trống</p>
+          <p className="lib-empty">
+            {searchQuery ? "Không tìm thấy kết quả phù hợp" : "Thư viện trống"}
+          </p>
         ) : (
           visible.map((item) => (
             <button
@@ -188,7 +257,11 @@ export default function Sidebar() {
               }}
             >
               {view !== "compact" && item.image ? (
-                <img src={normalizeUrl(item.image)} alt="" />
+                <img
+                  src={normalizeUrl(item.image)}
+                  alt={item.title}
+                  className={item.type === "artist" ? "avatar-fallback" : ""}
+                />
               ) : (
                 <span className="avatar-fallback">{item.title?.[0]}</span>
               )}
